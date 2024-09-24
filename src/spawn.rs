@@ -2,7 +2,7 @@
 
 use std::{ffi::CStr, mem, os::fd::RawFd};
 
-#[cfg(any(feature = "fs", feature = "term"))]
+#[cfg(feature = "fs")]
 use crate::fcntl::OFlag;
 #[cfg(feature = "signal")]
 use crate::sys::signal::SigSet;
@@ -322,7 +322,7 @@ impl PosixSpawnFileActions {
     }
 
     feature! {
-    #![all(feature = "fs", feature = "term")]
+    #![all(feature = "fs")]
     /// Add an open action. See
     /// [posix_spawn_file_actions_addopen](https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_spawn_file_actions_addopen.html).
     #[doc(alias("posix_spawn_file_actions_addopen"))]
