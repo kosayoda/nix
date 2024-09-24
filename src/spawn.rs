@@ -366,6 +366,85 @@ impl PosixSpawnFileActions {
 
         Ok(())
     }
+
+    /// Add a chdir action. See
+    /// [posix_spawn_file_actions_addchdir](https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/posix_spawn_file_actions_addchdir.html).
+    #[doc(alias("posix_spawn_file_actions_addchdir_np"))]
+    #[doc(alias("posix_spawn_file_actions_addchdir"))]
+    pub fn add_chdir<P: ?Sized + NixPath>(&mut self, path: &P) -> Result<()> {
+        let res = path.with_nix_path(|cstr| unsafe {
+            libc::posix_spawn_file_actions_addchdir_np(
+                &mut self.fa as *mut libc::posix_spawn_file_actions_t,
+                cstr.as_ptr(),
+            )
+        })?;
+
+        if res != 0 {
+            return Err(Errno::from_raw(res));
+        }
+
+        Ok(())
+    }
+
+    /// Add an fchdir action. See
+    /// [posix_spawn_file_actions_addfchdir](https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/posix_spawn_file_actions_addchdir.html).
+    #[doc(alias("posix_spawn_file_actions_addfchdir_np"))]
+    #[doc(alias("posix_spawn_file_actions_addfchdir"))]
+    pub fn add_fchdir(&mut self, fd: RawFd) -> Result<()> {
+        let res = unsafe {
+            libc::posix_spawn_file_actions_addfchdir_np(
+                &mut self.fa as *mut libc::posix_spawn_file_actions_t,
+                fd,
+            )
+        };
+
+        if res != 0 {
+            return Err(Errno::from_raw(res));
+        }
+
+        Ok(())
+    }
+
+    /// Add a closefrom action.
+    /// The action closes all file descriptors with a value greater or equal to `fd` during spawn.
+    ///
+    /// Note: [This is a non-portable glibc extension](https://www.gnu.org/software//gnulib/manual/html_node/posix_005fspawn_005ffile_005factions_005faddclosefrom_005fnp.html)
+    #[doc(alias("posix_spawn_file_actions_addclosefrom_np"))]
+    pub fn add_closefrom_np(&mut self, fd: RawFd) -> Result<()> {
+        let res = unsafe {
+            libc::posix_spawn_file_actions_addclosefrom_np(
+                &mut self.fa as *mut libc::posix_spawn_file_actions_t,
+                fd,
+            )
+        };
+
+        if res != 0 {
+            return Err(Errno::from_raw(res));
+        }
+
+        Ok(())
+    }
+
+    /// Add a tcsetpgrp action.
+    /// This action sets the process group of the foreground process group associated with the
+    /// terminal `tc_fd`.
+    ///
+    /// Note: [This is a non-portable glibc extension](https://www.gnu.org/software//gnulib/manual/html_node/posix_005fspawn_005ffile_005factions_005faddtcsetpgrp_005fnp.html).
+    #[doc(alias("posix_spawn_file_actions_addtcsetpgrp_np"))]
+    pub fn add_tcsetpgrp_np(&mut self, tc_fd: RawFd) -> Result<()> {
+        let res = unsafe {
+            libc::posix_spawn_file_actions_addtcsetpgrp_np(
+                &mut self.fa as *mut libc::posix_spawn_file_actions_t,
+                tc_fd,
+            )
+        };
+
+        if res != 0 {
+            return Err(Errno::from_raw(res));
+        }
+
+        Ok(())
+    }
 }
 
 impl Drop for PosixSpawnFileActions {
